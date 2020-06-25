@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
 use App\Product;
 use GuzzleHttp\Handler\Proxy;
 use Illuminate\Http\Request;
@@ -16,7 +17,8 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::all();
-        return response()->json($products, 200);
+        $category = Category::all();
+        return response()->json([$category, $products], 200);
     }
 
     /**
@@ -71,13 +73,14 @@ class ProductController extends Controller
     public function edit($id)
     {
         $product = Product::findOrFail($id);
+        $category = Category::all();
 
         $statusCode = 200;
         if (!$product) {
             $statusCode = 404;
         }
 
-        return response()->json($product, $statusCode);
+        return response()->json([$category, $product], $statusCode);
     }
 
     /**
