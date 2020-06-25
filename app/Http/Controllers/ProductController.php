@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Product;
+use GuzzleHttp\Handler\Proxy;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -15,7 +16,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::all();
-        return response($products);
+        return response()->json($products, 200);
     }
 
     /**
@@ -36,7 +37,19 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $product = new Product();
+        $product->name = $request->name;
+        $product->category_id = $request->category_id;
+        $product->description = $request->description;
+        $product->price = $request->price;
+        $product->save();
+
+        $statusCode = 201;
+        if (!$product) {
+            $statusCode = 500;
+        }
+
+        return response()->json($product, $statusCode);
     }
 
     /**
@@ -47,7 +60,6 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        //
     }
 
     /**
@@ -58,7 +70,14 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        //
+        $product = Product::findOrFail($id);
+
+        $statusCode = 200;
+        if (!$product) {
+            $statusCode = 404;
+        }
+
+        return response()->json($product, $statusCode);
     }
 
     /**
@@ -70,7 +89,19 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $product = Product::find($id);
+        $product->name = $request->name;
+        $product->category_id = $request->category_id;
+        $product->description = $request->description;
+        $product->price = $request->price;
+        $product->save();
+
+        $statusCode = 200;
+        if (!$product) {
+            $statusCode = 404;
+        }
+
+        return response()->json($product, $statusCode);
     }
 
     /**
@@ -81,6 +112,15 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $product = Product::find($id);
+        $statusCode = 404;
+        $msg = 'Not found';
+        if ($product) {
+            $product->delete();
+            $statusCode = 200;
+            $msg = 'Delete complete';
+        }
+
+        return response()->json($msg, $statusCode);
     }
 }
